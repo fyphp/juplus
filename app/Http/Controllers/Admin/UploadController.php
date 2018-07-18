@@ -28,7 +28,7 @@ class UploadController extends Controller
                     //这里的uploads是配置文件的名称
                     $bool = Storage::disk('uploads')->put($filename, file_get_contents($realPath));
                     if ($bool){
-                        return response()->json(['msg'=>'上传成功','code'=>1,'data'=>public_path().'/upload/'.$filename]);
+                        return response()->json(['msg'=>'上传成功','code'=>1,'data'=>'/upload/'.$filename]);
                     }else{
                         return response()->json(['msg'=>'上传失败','code'=>0,'data'=>'']);
                     }

@@ -13,7 +13,7 @@ class SmsController
     //主帐号Token
     public $accountToken= '35b176c2430c48a69013c76dfb6ef95d';
     //应用Id
-    public $appId='8a216da862cc8f910162d143edc5027a';
+    public $appId='8aaf0708644a2efd01645f1e6b5c0af6';
 //请求地址
 //沙盒环境（用于应用开发调试）：sandboxapp.cloopen.com
 //生产环境（用户应用上线使用）：app.cloopen.com

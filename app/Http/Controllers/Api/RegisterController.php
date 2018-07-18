@@ -7,6 +7,7 @@ use App\Model\Member;
 use App\Model\Sms;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use QcloudImage;
 
 class RegisterController extends Controller
 {
@@ -46,7 +47,7 @@ class RegisterController extends Controller
             $data = rand(pow(10,(6-1)), pow(10,6)-1);
             $param['data'] = $data;
             $sendsms = new SmsController();
-            $result = $sendsms->sendTemplateSMS($param['tel'],[$data],'');
+            $result = $sendsms->sendTemplateSMS($param['tel'],[$data],'261298');
             if ($result == 1){
                 $sms = $this->sms;
                 $sms->instrt($param);
@@ -54,7 +55,31 @@ class RegisterController extends Controller
             }else{
                 return response()->json(['msg'=>'发送失败','code'=>0,'data'=>'']);
             }
-
         }
+    }
+
+    /**
+     * 名片识别
+     */
+    public function Qcl(Request $request)
+    {
+        if ($request->isMethod('post')){
+            $param = $request->input();
+            $appid = '1256441419';
+            $secretId = 'AKID7A4nKgh0xmQxJVqQ9mFBwVt8C5pNmSmy';
+            $secretKey = 'AA1hCZlogNBsQo160pY7WkmeQ1RjqmX8';
+            $bucket = 'ocr';
+
+            $client = new QcloudImage\CIClient($appid, $secretId, $secretKey, $bucket);
+
+            $client->setTimeout(30);
+
+            //名片识别
+            $ret = $client->namecardDetect(['urls'=>['http://m.juplus.cn'.$param['file']]], 0);
+
+            return $ret;
+        }
+
+
     }
 }

@@ -3,24 +3,40 @@
 namespace App\Http\Controllers\Api;
 
 use App\Model\Activity;
+use App\Model\ActivityMember;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class ActivityController extends Controller
 {
     protected $activity;
+    protected $am;
 
     public function __construct()
     {
         $this->activity = new Activity();
+        $this->am = new ActivityMember();
     }
 
     /**
      * 获取所有的活动
      */
-    public function getActivity()
+    public function getActivity(Request $request)
     {
-        $result = $this->activity->activityAll();
+        $param = $request->input();
+        $result = $this->activity->activityAll($param['type']);
+
+        return response()->json(['msg'=>'获取成功','code'=>1,'data'=>$result]);
+    }
+
+
+    /**
+     * 获取活动详情
+     */
+    public function activityData(Request $request)
+    {
+        $param = $request->input();
+        $result = $this->activity->getOne($param['id']);
 
         return response()->json(['msg'=>'获取成功','code'=>1,'data'=>$result]);
     }
@@ -32,7 +48,7 @@ class ActivityController extends Controller
     {
         if ($request->isMethod('post')){
             $param = $request->input();
-            $result = $this->activity->upActivity($param);
+            $result = $this->am->upActivity($param);
             return response()->json($result);
         }
     }

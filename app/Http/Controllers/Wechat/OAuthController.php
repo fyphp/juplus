@@ -28,16 +28,29 @@ class OAuthController extends Controller
     public function index(Request $request)
     {
         $param = $request->input();
-        if (empty(session('wechat_user'))){
+        if (session('wechat_user')){
+            $json = session('wechat_user');
+            $data = '?member_id="'.$json['id'].'&name='.$member_info['name'];
+            if(isset($param['activity_id'])){
+                $data .= '&activity_id='.$param['activity_id'];
+            }
+            header('Location:https://juplus.cn/nord-view/'.$param['url'].$data);exit();
+        }else{
+
             session(['target_url'=>$param['url']]);
+            if(isset($param['activity_id'])){
+                session(['activity_id'=>$param['activity_id']]);
+            }
             $app = $this->officialAccount();
             //发起授权
             $response = $app->oauth->scopes(['snsapi_userinfo'])
                 ->redirect('http://m.juplus.cn/getSession');
+//            $oauth = $app->oauth;
+//            $user = $oauth->user();
+//            $userarray = $user->toArray();
+//            $result = $this->isLogin($userarray['original']);
+//            session(['wechat_user'=>$result]);
             return $response;
-        }else{
-            $json = response()->json(session('wechat_user'));
-            header('Location:'.$param['url'].'?data='.$json);exit();
         }
     }
 
@@ -48,15 +61,21 @@ class OAuthController extends Controller
     public function getSession(Request $request)
     {
         $app = $this->officialAccount();
+        $member = new Member();
         $oauth = $app->oauth;
         $user = $oauth->user();
         $userarray = $user->toArray();
         //检查是否有基本信息
         $result = $this->isLogin($userarray['original']);
-        session(['wechat_user'=>$result]);
+        session(['wechat_user' => $result]);
 
-        $json = response()->json(session('wechat_user'));
-        header('Location:'.session('target_url').'?data='.$json);exit();
+        $member_info = $member->getOpenidMember($result['openid']);
+        $data = '?member_id='.$member_info['id'].'&name='.$member_info['name'];
+        if(session('activity_id')){
+            $data .= '&activity_id='.session('activity_id');
+        }
+        header('Location:https://juplus.cn/nord-view/'.session('target_url').$data);
+        exit();
     }
 
     /**

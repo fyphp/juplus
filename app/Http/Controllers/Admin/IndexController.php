@@ -69,6 +69,15 @@ class IndexController extends Controller
         $data['countpage'] = $countpage;
         $data['pagenum'] = $pagenum;
 
-        return response()->json(['msg'=>'获取成功','code'=>1,'data'=>$data]);
+        return ['total'=>$count,'data'=>$data['info']];
+    }
+
+    /**
+     * 导出用户数据
+     */
+    public function export(Request $request)
+    {
+
+
     }
 }

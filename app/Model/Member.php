@@ -20,7 +20,7 @@ class Member extends Model
      */
     public function pageMember($where,$page,$pagenum)
     {
-        return $this->where($where)->forPage($page,$pagenum)->orderBy('id', 'desc')->get();
+        return $this->where($where)->forPage($page,$pagenum)->orderBy('id', 'desc')->get()->toArray();
     }
 
     /**
@@ -88,11 +88,19 @@ class Member extends Model
         $info = $this->find($param['id']);
         $info->name = $param['name'];
         $info->tel = $param['tel'];
-        $info->company = $param['company'];
-        $info->position = $param['position'];
-        $info->email = $param['email'];
-        $info->home = $param['home'];
-        $result = $this->save();
+        if (isset($param['company'])){
+            $info->company = $param['company'];
+        }
+        if (isset($param['position'])){
+            $info->position = $param['position'];
+        }
+        if (isset($param['email'])){
+            $info->email = $param['email'];
+        }
+        if (isset($param['home'])){
+            $info->home = $param['home'];
+        }
+        $result = $info->save();
         if ($result == true){
             return ['msg'=>'注册完成','code'=>1,'data'=>''];
         }else{
@@ -107,10 +115,19 @@ class Member extends Model
     {
         $info = $this->find($param['id']);
         $info->name = $param['name'];
-        $info->home = $param['home'];
-        $info->email = $param['email'];
-        $info->company = $param['company'];
-        $info->position = $param['position'];
+        $info->tel = $param['tel'];
+        if (isset($param['company'])){
+            $info->company = $param['company'];
+        }
+        if (isset($param['position'])){
+            $info->position = $param['position'];
+        }
+        if (isset($param['email'])){
+            $info->email = $param['email'];
+        }
+        if (isset($param['home'])){
+            $info->home = $param['home'];
+        }
         $result = $info->save();
         if ($result == true){
             return ['msg'=>'修改完成','code'=>1,'data'=>''];

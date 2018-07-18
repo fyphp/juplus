@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Model\Activity;
 use App\Model\Member;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -9,10 +10,12 @@ use App\Http\Controllers\Controller;
 class MemberController extends Controller
 {
     private $member;
+    private $activity;
 
     function __construct()
     {
         $this->member = new Member();
+        $this->activity = new Activity();
     }
 
     /**
@@ -47,6 +50,20 @@ class MemberController extends Controller
             }
         }catch (\Exception $e){
             return response()->json(['code'=>0,'msg'=>'修改失败','data'=>'']);
+        }
+    }
+
+    /**
+     * 获取参加过的活动
+     */
+    public function getMActivity(Request $request)
+    {
+        try{
+                $param = $request->input();
+                $result = $this->activity->getMA($param);
+                return response()->json($result);
+        }catch (\Exception $e){
+            return response()->json(['code'=>0,'msg'=>'获取失败','data'=>'']);
         }
     }
 }

@@ -20,7 +20,7 @@ class Activity extends Model
      */
     public function pageMember($where,$page,$pagenum)
     {
-        return $this->where($where)->forPage($page,$pagenum)->orderBy('id', 'desc')->get();
+        return $this->where($where)->forPage($page,$pagenum)->orderBy('id', 'desc')->get()->toArray();
     }
 
     /**
@@ -43,6 +43,7 @@ class Activity extends Model
         $this->content = $param['content'];
         $this->is_open = $param['is_open'];
         $this->is_gps = $param['is_gps'];
+        $this->content = $param['content'];
         $result = $this->save();
         if ($result == true){
             return ['msg'=>'插入成功','code'=>1,'data'=>$this->id];
@@ -50,6 +51,21 @@ class Activity extends Model
             return ['msg'=>'插入失败','code'=>0,'data'=>''];
         }
 
+    }
+
+    /**
+     * 添加活动签到二维码
+     */
+    public function signImg($param)
+    {
+        $info = $this->find($param['id']);
+        $info->list_img = $param['signimg'];
+        $result = $info->save();
+        if ($result == true){
+            return ['msg'=>'插入签到成功','code'=>1,'data'=>''];
+        }else{
+            return ['msg'=>'插入签到失败','code'=>0,'data'=>''];
+        }
     }
 
     /**
@@ -84,27 +100,19 @@ class Activity extends Model
     /**
      * 获取所有的活动
      */
-    public function activityAll()
+    public function activityAll($type)
     {
-        return $this->where('status',1)->all();
-    }
-
-    /**
-     * 用户报名活动
-     */
-    public function upActivity($param)
-    {
-        $this->activity_id = $param['activity_id'];
-        $this->member_id = $param['member_id'];
-        $this->time = $this->ytime();
-        $result = $this->save();
-
-        if ($result == true){
-            return ['msg'=>'报名成功','code'=>1,'data'=>''];
+        //tyoe:1精彩活动 2历史活动
+        $newtime = date('Y-m-d H:i',time());
+//        dd($newtime);
+        if($type == 1){
+            return $this->where('status',1)->where('time','>=',$newtime)->get();
         }else{
-            return ['msg'=>'报名失败','code'=>0,'data'=>''];
+            return $this->where('status',1)->where('time','<',$newtime)->get();
         }
+
     }
+
 
     /**
      * 用户报名签到

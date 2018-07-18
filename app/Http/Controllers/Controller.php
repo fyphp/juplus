@@ -31,4 +31,19 @@ class Controller extends BaseController
         $app = Factory::officialAccount($options);
         return $app;
     }
+
+    public function payment()
+    {
+        $config = [
+            'app_id'    => 'wxe58eeb9048a331f8',
+            'mch_id'    => '1508534671',
+            'key'       => 'nord@Drivesystem2',
+            'cert_path' => '/www/html/jue/nord/apiclient_cert.pem',
+            'key_path'  => '/www/html/jue/nord/apiclient_key.pem',
+        ];
+
+        $payment = Factory::payment($config);
+
+        return $payment->redpack;
+    }
 }
