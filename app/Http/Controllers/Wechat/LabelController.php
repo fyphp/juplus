@@ -39,8 +39,10 @@ class LabelController extends Controller
     /**
      * 获取微信jssdk
      */
-    public function getJsSkd()
+    public function getJsSkd(Request $request)
     {
+        $param = $request->input();
+        $this->app->jssdk->setUrl($param['url']);
         $jssdk = $this->app->jssdk->buildConfig(['onMenuShareTimeline','onMenuShareAppMessage','chooseImage','previewImage','uploadImage','downloadImage'], $debug = false, $beta = false, $json = false);
         return response()->json(['msg'=>'获取成功','code'=>1,'data'=>$jssdk]);
     }

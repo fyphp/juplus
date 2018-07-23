@@ -12,6 +12,7 @@ namespace App\Http\Controllers\Wechat;
 use App\Model\Member;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Session;
 
 class OAuthController extends Controller
 {
@@ -28,18 +29,24 @@ class OAuthController extends Controller
     public function index(Request $request)
     {
         $param = $request->input();
-        if (session('wechat_user')){
-            $json = session('wechat_user');
-            $data = '?member_id="'.$json['id'].'&name='.$member_info['name'];
+//        dd(Session::has('wechat_user'));
+        if (Session::has('wechat_user')){
+            $json = Session::get('wechat_user');
+            $data = '?member_id="'.$json['id'].'&name='.$json['name'];
             if(isset($param['activity_id'])){
-                $data .= '&activity_id='.$param['activity_id'];
+                session(['activity_id'=>$param['activity_id']]);
+            }
+            if(isset($param['question_id'])){
+                session(['question_id'=>$param['question_id']]);
             }
             header('Location:https://juplus.cn/nord-view/'.$param['url'].$data);exit();
         }else{
-
             session(['target_url'=>$param['url']]);
             if(isset($param['activity_id'])){
                 session(['activity_id'=>$param['activity_id']]);
+            }
+            if(isset($param['question_id'])){
+                session(['question_id'=>$param['question_id']]);
             }
             $app = $this->officialAccount();
             //发起授权
@@ -67,12 +74,14 @@ class OAuthController extends Controller
         $userarray = $user->toArray();
         //检查是否有基本信息
         $result = $this->isLogin($userarray['original']);
-        session(['wechat_user' => $result]);
-
+        Session::put('wechat_user',$result);
         $member_info = $member->getOpenidMember($result['openid']);
         $data = '?member_id='.$member_info['id'].'&name='.$member_info['name'];
         if(session('activity_id')){
             $data .= '&activity_id='.session('activity_id');
+        }
+        if(session('question_id')){
+            $data .= '&question_id='.session('question_id');
         }
         header('Location:https://juplus.cn/nord-view/'.session('target_url').$data);
         exit();

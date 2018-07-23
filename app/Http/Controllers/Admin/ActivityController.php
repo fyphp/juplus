@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Model\Activity;
 use App\Model\ActivityMember;
+use App\Model\Grouping;
 use BaconQrCode\Encoder\QrCode;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -66,10 +67,21 @@ class ActivityController extends Controller
             }else{
                 $result = $this->activity->add($param);
                 if ($result['code'] == 1){
+                    //生成二维码,并保存
                     $filename = '/upload/'.date('Y-m-d-H-i-s') . '-' . uniqid() . '.svg';
                     $dir = public_path().$filename;
-                    \SimpleSoftwareIO\QrCode\Facades\QrCode::size(1000)->generate('https://juplus.cn/oauth?url=activitysign.html&activity='.$request['data'],$dir);
+                    \SimpleSoftwareIO\QrCode\Facades\QrCode::size(1000)->generate('https://m.juplus.cn/oauth?url=activitysign.html&activity='.$request['data'],$dir);
                     $this->activity->signImg(['id'=>$result['data'],'signimg'=>$filename]);
+                    //并生成标签
+                    //获取活动的一级标签,根据一级标签创建二级标签
+                    $group = new Grouping();
+                    $info = $group->getNameOne(['name'=>'活动']);
+                    $group->insterTwo([//根据活动创建二级标签
+                        'name' => $param['title'],
+                        'content' => $param['content'],
+                        'pata_id' => $info['id'],
+                        'activity_id' => $result['data']
+                    ]);
                 }
             }
             return response()->json($result);

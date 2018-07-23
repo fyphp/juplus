@@ -25,8 +25,13 @@ class MemberController extends Controller
     {
         try{
             $param = $request->input();
+            if (isset($param['id'])){
+                $info = $this->member->find($param['id']);
+            }else{
+                $member_info = session('wechat_user');
+                $info = $this->member->find($member_info['id']);
+            }
 
-            $info = $this->member->find($param['id']);
 
             return response()->json(['code'=>1,'msg'=>'获取成功','data'=>$info]);
         }catch (\Exception $e){
@@ -65,5 +70,13 @@ class MemberController extends Controller
         }catch (\Exception $e){
             return response()->json(['code'=>0,'msg'=>'获取失败','data'=>'']);
         }
+    }
+
+    /**
+     * 保存用户session
+     */
+    public function saveSession(Request $request)
+    {
+
     }
 }

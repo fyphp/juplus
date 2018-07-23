@@ -14,6 +14,23 @@ class qrcode extends Model
     {
         return date('Y-m-d h:i:s',time());
     }
+
+    /**
+     * 后端获取用户
+     */
+    public function pageMember($where,$page,$pagenum)
+    {
+        return $this->where($where)->forPage($page,$pagenum)->orderBy('id', 'desc')->get()->toArray();
+    }
+
+    /**
+     * 获取用户总数
+     */
+    public function total($where)
+    {
+        return $this->where($where)->count();
+    }
+
     /**
      * 创建二维码
      */
