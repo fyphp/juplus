@@ -20,19 +20,19 @@ class Message extends Model
      */
     public function addText($param)
     {
+        $this->group_id = $param['grouping_id'];
 
-        if (is_array($param['formto'])){
-            $param['formto'] = implode(',', $param['formto']);
-            $this->member_openid = $param['formto'];
-        }else{
-            $this->group_id = $param['formto'];
-        }
         if ($param['type'] == 1){
             $this->content = $param['content'];
+        }
+        if ($param['type'] == 2){
+            $this->template_content = $param['template_content'];
+            $this->template_id = $param['template_id'];
         }
         if ($param['type'] == 3){
             $this->media = $param['media_id'];
         }
+
         $this->creater_time = $this->ytime();
         $this->type = $param['type'];
         $resilt = $this->save();

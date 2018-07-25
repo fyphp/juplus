@@ -3,6 +3,7 @@
 namespace App\Model;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Member extends Model
 {
@@ -12,7 +13,15 @@ class Member extends Model
 
     protected function ytime()
     {
-        return date('Y-m-d h:i:s',time());;
+        return date('Y-m-d h:i:s',time());
+    }
+
+    /**
+     * 一对多关联用户标签表
+     */
+    public function groupMember()
+    {
+        return $this->hasMany('App\Model\MemberGroup','group_id','member_id');
     }
 
     /**
@@ -20,7 +29,22 @@ class Member extends Model
      */
     public function pageMember($where,$page,$pagenum)
     {
-        return $this->where($where)->forPage($page,$pagenum)->orderBy('id', 'desc')->get()->toArray();
+        if (isset($where['grouping_id'])){
+            $grouping_id = $where['grouping_id'];
+            unset($where['grouping_id']);
+            return DB::table('xk_member')
+                ->join('xk_member_group','xk_member.id','=','xk_member_group.member_id')
+                ->where($where)
+                ->where('xk_member_group.group_id','=',$grouping_id)
+                ->select('xk_member.*')
+                ->forPage($page,$pagenum)->orderBy('xk_member.id', 'desc')->get()->toArray();
+//            return $this::has('App\Model\MemberGroup',function ($query) use ($grouping_id){
+//                $query->where('group_id',$grouping_id);
+//            })->where($where)->forPage($page,$pagenum)->orderBy('id', 'desc')->get()->toArray();
+        }else{
+            return $this->where($where)->forPage($page,$pagenum)->orderBy('id', 'desc')->get()->toArray();
+        }
+
     }
 
     /**
@@ -28,7 +52,19 @@ class Member extends Model
      */
     public function total($where)
     {
-        return $this->where($where)->count();
+
+        if (isset($where['grouping_id'])){
+            $grouping_id = $where['grouping_id'];
+            unset($where['grouping_id']);
+            return DB::table('xk_member')
+                ->join('xk_member_group','xk_member.id','=','xk_member_group.member_id')
+                ->where($where)
+                ->where('xk_member_group.group_id','=',$grouping_id)
+                ->select('xk_member.*')
+               ->count();
+        }else{
+            return $this->where($where)->count();
+        }
     }
 
     /**

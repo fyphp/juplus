@@ -45,24 +45,42 @@ class PaymentController extends Controller
             $rendstr.=$rnd_num[array_rand($rnd_num)];
         }
         $mac = '1508534671'.date("Ymd").$rendstr;
+        $nonce_str = self::createNonceStr();
         $unified = array(
-            'act_name'=>'2222',           //活动名称
+            'act_name'=>'csacsa',//活动名称
             'client_ip' => '47.98.140.17',
             'mch_billno' => $mac,
             'mch_id' => $config['mch_id'],
-            'nonce_str' => self::createNonceStr(),
+            'nonce_str' =>$nonce_str,
             're_openid' => 'ogXT71Y2qDMDBPbSh3WiwjUqoqE0',
-            'remark'=>'remark',               //备注信息，如为中文注意转为UTF8编码
-            'send_name' => '诺德传动',
-            'total_amount' => intval(1 * 100),       //单位 转为分
-            'total_num'=>1,     //红包发放总人数
-            'wishing'=>'111',      //红包祝福语
-            'scene_id'=>'PRODUCT_2',      //发放红包使用场景，红包金额大于200时必传。https://pay.weixin.qq.com/wiki/doc/api/tools/cash_coupon.php?chapter=13_4&index=3
-            'wxappid' => $config['appid']
+            'remark'=>'csadas',//备注信息，如为中文注意转为UTF8编码
+            'send_name' => 'xzczxc',
+            'total_amount' => 100,       //单位 转为分
+            'total_num'=> 1,     //红包发放总人数
+            'wishing'=>'csacasc',      //红包祝福语
+            'wxappid' => $config['appid'],
+        );
+        $onunified = array(
+            'sign' => '',
+            'mch_billno' => $mac,
+            'mch_id' => $config['mch_id'],
+            'wxappid' => $config['appid'],
+            'send_name' => 'xzczxc',
+            're_openid' => 'ogXT71Y2qDMDBPbSh3WiwjUqoqE0',
+            'total_amount' => 100,       //单位 转为分
+            'total_num'=> 1,     //红包发放总人数
+            'wishing'=>'csacasc',      //红包祝福语
+            'client_ip' => '47.98.140.17',
+            'act_name'=>'csacsa',//活动名称
+            'remark'=>'csadas',//备注信息，如为中文注意转为UTF8编码
+            'nonce_str' =>$nonce_str,
         );
 
-        $unified['sign'] = self::getSign($unified, $config['key']);
-        $responseXml = $this->curlPost('https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack', self::arrayToXml($unified));
+
+        $onunified['sign'] = self::getSign($unified, $config['key']);
+//        dd(self::arrayToXml($unified));
+        $responseXml = $this->curlPost('https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack', self::arrayToXml($onunified));
+        dd($responseXml);
 //        dd($unified['sign'],$mac,$config['mch_id'],self::createNonceStr(),intval(1 * 100),$config['appid']);
 //        file_put_contents('1.txt',print_r($responseXml,true));
 //                print_r($responseXml,true);die;
@@ -222,7 +240,7 @@ class PaymentController extends Controller
         $unSignParaString = self::formatQueryParaMap($params, false);
 
         $signStr = strtoupper(md5($unSignParaString . "&key=" . $key));
-        dd($params,$unSignParaString,$signStr,$unSignParaString . "&key=" . $key);
+//        dd($params,$unSignParaString,$signStr,$unSignParaString . "&key=" . $key);
         return $signStr;
     }
     protected static function formatQueryParaMap($paraMap, $urlEncode = false)

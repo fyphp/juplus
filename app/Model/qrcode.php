@@ -39,7 +39,9 @@ class qrcode extends Model
         $this->grouping_id = $param['grouping_id'];
         $this->name = $param['name'];
         $this->creater_time = $this->ytime();
-        $this->push = $param['push'];
+        if (isset($param['push'])){
+            $this->push = $param['push'];
+        }
         $result = $this->save();
         if ($result == true){
             return ['msg'=>'插入成功','code'=>1,'data'=>$this->id];

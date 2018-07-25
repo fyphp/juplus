@@ -153,6 +153,10 @@ class LabelController extends Controller
 
         //获取每页数量
         $member_info = $this->qrcode->pageMember($where,$page,$pagenum);
+        foreach ($member_info as $k=>$v){
+            $group = $this->grouping->find($v['grouping_id']);
+            $member_info[$k]['grouping_name'] = $group['grouping_name'];
+        }
         //获取总数量
         $count = $this->qrcode->total($where);
         //获取总页码数
@@ -165,6 +169,22 @@ class LabelController extends Controller
         $data['pagenum'] = $pagenum;
 
         return ['total'=>$count,'data'=>$data['info']];
+    }
+
+    /**
+     * 联动查询一二级标签
+     */
+    public function getLabel(Request $request)
+    {
+        $param = $request->input();
+        $where = [];
+        if (isset($param['pata_id'])){
+            $where['pata_id'] = $param['pata_id'];
+        }else{
+            $where['pata_id'] = 0;
+        }
+        $result = $this->grouping->getOneTwoLabel($where);
+        return ['msg'=>'获取成功','code'=>1,'data'=>$result];
     }
 
     /**
@@ -193,11 +213,20 @@ class LabelController extends Controller
     public function delQrcode(Request $request)
     {
         $param = $request->input();
-        $data = $request->find($param['id']);
+        $data = $this->qrcode->find($param['id']);
         $this->qrcode->where('id',$param['id'])->delete();
         if (file_exists(public_path().'/'.$data['qrcode_img'])){
             unlink(public_path().'/'.$data['qrcode_img']);
         }
         return ['msg'=>'删除成功','code'=>1,'data'=>''];
+    }
+
+    /**
+     * 修改二级标签
+     */
+    public function editLabelOne(Request $request)
+    {
+
+
     }
 }

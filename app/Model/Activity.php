@@ -43,7 +43,6 @@ class Activity extends Model
         $this->content = $param['content'];
         $this->is_open = $param['is_open'];
         $this->is_gps = $param['is_gps'];
-        $this->content = $param['content'];
         $result = $this->save();
         if ($result == true){
             return ['msg'=>'插入成功','code'=>1,'data'=>$this->id];

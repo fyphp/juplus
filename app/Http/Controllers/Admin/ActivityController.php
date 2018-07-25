@@ -61,7 +61,7 @@ class ActivityController extends Controller
     {
         if ($request->isMethod('post')){
             $param = $request->input();
-            if ($param['id']){
+            if (isset($param['id'])){
 
                 $result = $this->activity->edit($param);
             }else{
@@ -143,5 +143,15 @@ class ActivityController extends Controller
         $data['pagenum'] = $pagenum;
 
         return ['total'=>$count,'data'=>$data['info']];
+    }
+
+    /**
+     * 删除自动回复
+     */
+    public function delActivity(Request $request)
+    {
+        $param = $request->input();
+        $this->activity->where('id',$param['id'])->delete();
+        return ['msg'=>'删除成功','code'=>1,'data'=>''];
     }
 }

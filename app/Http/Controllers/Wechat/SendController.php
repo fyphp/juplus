@@ -22,7 +22,6 @@ class SendController extends Controller
      */
     public function sendText($content,$to=[])
     {
-
         $result = $this->app->broadcasting->sendText($content,$to);
         return $result;
     }
@@ -35,7 +34,6 @@ class SendController extends Controller
      */
     public function sendImg($media_id,$to=[])
     {
-
         $result = $this->app->broadcasting->sendImage($media_id,$to);
         return $result;
     }
@@ -54,6 +52,20 @@ class SendController extends Controller
        return $result['media_id'];
     }
 
+    /**
+     * 发送模板消息
+     */
+    public function sendTemplate($param,$openid)
+    {
+        foreach ($openid as $k=>$v){
+            $this->app->template_message->send([
+                'touser' => $v,
+                'template_id' => $param['template_id'],
+                'url' => $param['url'],
+                'data' => $param['data']
+            ]);
+        }
 
+    }
 
 }

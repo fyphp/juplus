@@ -53,7 +53,7 @@ class LabelController extends Controller
     public function Qrcode($data)
     {
         //data: 1_2  1为带参数二维码id,2为标签id
-        $result = $this->app->qrcode->forever('1_2');
+        $result = $this->app->qrcode->forever($data);
 
         $url = $this->app->qrcode->url($result['ticket']);//获取网址内容
         $content = file_get_contents($url);//二进制图片

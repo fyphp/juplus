@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Wechat;
 
 use App\Model\Member;
+use App\Model\MemberGroup;
+use App\Model\qrcode;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Log;
@@ -33,9 +35,8 @@ class WechatController extends Controller
                     if ($message['Event'] == 'subscribe') {//关注注册用户基本信息
                         //扫码带参数二维码关注,有EvenKey值
                         if (!empty($message['EventKey'])){
-
+                            return 2222;
                         }
-
                         //普通关注
                         return $this->autoRegister($user);
                     }
@@ -43,7 +44,8 @@ class WechatController extends Controller
                         return $this->isCancel($user);
                     }
                     if ($message['Event'] == 'SCAN'){//用户已关注时扫带参数二维码
-
+                        //分配标签id
+                        return $this->SCANDataQrocd($user,$message);
                     }
                     return '欢迎关注';
                     break;
@@ -100,6 +102,62 @@ class WechatController extends Controller
     public function isCancel($param)
     {
         $this->member->cancel($param['openid']);
+    }
+
+    /**
+     * 已关注扫码带参数二维码,分配标签id与二维码id
+     */
+    public function SCANDataQrocd($user,$message)
+    {
+        $membergroup = new MemberGroup();
+        $qrcode = new qrcode();
+
+        $openid = $user['openid'];
+        $qrcode_data = $message['EventKey'];
+        //根据openid获取用户数据
+        $member = $this->member->getOpenidMember($openid);
+
+        //查询标签与二维码推送,并关联到用户
+        $id_info = explode('_',$qrcode_data);
+        $membergroup->addMemberActivity([
+            'data_qrcode_id' => $id_info[0],
+            'group_id' => $id_info[1],
+            'member_id' => $member['id']
+        ]);
+        //查询出二维码是否有推送,如果有则推送无则默认推送
+        $qrcode_info = $qrcode->find($id_info[0]);
+        if ($qrcode_info['push']){
+            return $qrcode_info['push'];
+        }
+        return '关于进入诺德传动';
+    }
+
+    /**
+     * 未关注扫带参数二维码进入,分配标签id与二维码id,并默认注册
+     */
+    public function EventKeyRegister($user,$message)
+    {
+        $membergroup = new MemberGroup();
+        $qrcode = new qrcode();
+        $qrcode_data = $message['EventKey'];
+        $id_info = explode('_',$qrcode_data);
+
+        //注册
+        $user['data_qrcode_id'] = $id_info[0];
+        $data = $this->member->inster($user);
+
+        //关联标签二维码
+        $membergroup->addMemberActivity([
+            'data_qrcode_id' => $id_info[0],
+            'group_id' => $id_info[1],
+            'member_id' => $data['id']
+        ]);
+        //查询出二维码是否有推送,如果有则推送无则默认推送
+        $qrcode_info = $qrcode->find($id_info[0]);
+        if ($qrcode_info['push']){
+            return $qrcode_info['push'];
+        }
+        return '欢迎关注诺德传动';
     }
 
 

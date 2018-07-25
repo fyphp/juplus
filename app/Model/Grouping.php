@@ -93,4 +93,14 @@ class Grouping extends Model
         return $this->where('activity_id',$param['activity_id'])->first();
     }
 
+    /**
+     * 联动获取一二级标签
+     */
+    public function getOneTwoLabel($where)
+    {
+        return $this->where($where)->get()->toArray();
+    }
+
+
+
 }
