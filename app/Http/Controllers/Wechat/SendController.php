@@ -53,6 +53,14 @@ class SendController extends Controller
     }
 
     /**
+     * 获取所有消息模板
+     */
+    public function getTemplate ()
+    {
+        return $this->app->template_message->getPrivateTemplates();
+    }
+
+    /**
      * 发送模板消息
      */
     public function sendTemplate($param,$openid)

@@ -193,12 +193,15 @@ class LabelController extends Controller
     public function delLabelOne(Request $request)
     {
         $param = $request->input();
+        $info = $this->grouping->find($param['id']);
         $this->grouping->where('id',$param['id'])->delete();
+        $label = new \App\Http\Controllers\Wechat\LabelController();
+        $label->deleteGroup($info['wx_id']);
         return ['msg'=>'删除成功','code'=>1,'data'=>''];
     }
 
     /**
-     * 删除一级标签
+     * 删除二级标签
      */
     public function delLabelTow(Request $request)
     {

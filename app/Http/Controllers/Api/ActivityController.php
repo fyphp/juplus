@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Wechat\LabelController;
 use App\Model\Activity;
 use App\Model\ActivityMember;
 use App\Model\Grouping;
+use App\Model\Member;
 use App\Model\MemberGroup;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -56,14 +58,33 @@ class ActivityController extends Controller
                 $group = new Grouping();
                 $membergroup = new MemberGroup();
                 $label = $group->getActivityLabel(['activity_id'=>$result['data']]);
-                $membergroup->addMemberActivity([
+                $data = $membergroup->addMemberActivity([
                     'member_id' => $param['member_id'],
                     'group_id' => $label['id']
                 ]);
+                if ($data['code'] == 1){
+                    $this->setMemberLabel([
+                        'member_id' => $param['member_id'],
+                        'wx_id' => $label['wx_id']
+                    ]);
+                }
             }
             return response()->json($result);
         }
     }
+
+    /**
+     * 在微信中归类到一级标签中
+     */
+    public function setMemberLabel($param)
+    {
+        //获取用户数据
+        $member = new Member();
+        $member_info = $member->find($param['member_id']);
+        $lable = new LabelController();
+        $lable->addLabelOne([$member_info['openid']],$param['wx_id']);
+    }
+
 
     /**
      * 用户活动签到

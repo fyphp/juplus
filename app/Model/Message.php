@@ -16,6 +16,22 @@ class Message extends Model
     }
 
     /**
+     * 后端获取列表
+     */
+    public function pageMember($where,$page,$pagenum)
+    {
+        return $this->where($where)->forPage($page,$pagenum)->orderBy('id', 'desc')->get()->toArray();
+    }
+
+    /**
+     * 获取活动总数
+     */
+    public function total($where)
+    {
+        return $this->where($where)->count();
+    }
+
+    /**
      * 添加文本消息
      */
     public function addText($param)

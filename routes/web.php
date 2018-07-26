@@ -67,6 +67,8 @@ Route::group(['namespace' => 'Admin'], function(){
         Route::post('editlabelone','LabelController@editLabelOne');//修改二级标签
 
         Route::post('send','MessageSendController@send');//发送文本与图片消息
+        Route::get('sendlist','MessageSendController@sendList');//获取文本与图片列表
+        Route::get('getalltemplate','MessageSendController@getAllTemplate');//获取全部模板信息
 
         Route::post('sendnormal','PaymentController@send');//发送普通红包
         Route::post('easypay','EasyPayController@send');//easywecaht发送普通红包
@@ -88,6 +90,10 @@ Route::group(['namespace' => 'Admin'], function(){
         Route::get('autolist','AtutoReplyController@autoList');//获取自动回复的列表
         Route::post('addauto','AtutoReplyController@addAuto');//新增自动回复
         Route::post('delauto','AtutoReplyController@delAuto');//删除自动回复
+
+        Route::get('positionlist','PositionController@positionList');//获取公司列表
+        Route::post('addposition','PositionController@positionAdd');//新增公司
+        Route::post('delposition','PositionController@delPosition');//删除公司
     });
 });
 

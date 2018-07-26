@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Wechat;
 
+use App\Model\AutoReply;
+use App\Model\Grouping;
 use App\Model\Member;
 use App\Model\MemberGroup;
 use App\Model\qrcode;
@@ -35,7 +37,8 @@ class WechatController extends Controller
                     if ($message['Event'] == 'subscribe') {//关注注册用户基本信息
                         //扫码带参数二维码关注,有EvenKey值
                         if (!empty($message['EventKey'])){
-                            return 2222;
+                            //分配标签id
+                            return $this->EventKeyRegister($user,$message);
                         }
                         //普通关注
                         return $this->autoRegister($user);
@@ -50,7 +53,7 @@ class WechatController extends Controller
                     return '欢迎关注';
                     break;
                 case 'text':
-                    return '收到消息';
+                    return $this->autoMessage($message['Content']);
                     break;
                 case 'image':
                     return '收到图片消息';
@@ -119,11 +122,17 @@ class WechatController extends Controller
 
         //查询标签与二维码推送,并关联到用户
         $id_info = explode('_',$qrcode_data);
-        $membergroup->addMemberActivity([
+        $result = $membergroup->addMemberActivity([
             'data_qrcode_id' => $id_info[0],
             'group_id' => $id_info[1],
             'member_id' => $member['id']
         ]);
+        if ($result['code'] == 1){//关系一级标签
+            $this->setMemberLabel([
+                'group_id' => $id_info[1]
+            ],$user);
+        }
+
         //查询出二维码是否有推送,如果有则推送无则默认推送
         $qrcode_info = $qrcode->find($id_info[0]);
         if ($qrcode_info['push']){
@@ -147,11 +156,17 @@ class WechatController extends Controller
         $data = $this->member->inster($user);
 
         //关联标签二维码
-        $membergroup->addMemberActivity([
+        $result = $membergroup->addMemberActivity([
             'data_qrcode_id' => $id_info[0],
             'group_id' => $id_info[1],
             'member_id' => $data['id']
         ]);
+        if ($result['code'] == 1){//关系一级标签
+            $this->setMemberLabel([
+                'group_id' => $id_info[1]
+            ],$user);
+        }
+
         //查询出二维码是否有推送,如果有则推送无则默认推送
         $qrcode_info = $qrcode->find($id_info[0]);
         if ($qrcode_info['push']){
@@ -160,5 +175,28 @@ class WechatController extends Controller
         return '欢迎关注诺德传动';
     }
 
+    /**
+     * 先查询出一级标签,归类到一级标签中
+     */
+    public function setMemberLabel($param,$user)
+    {
+        $group = new Grouping();
+        //根据得到的二级标签id获取一级标签
+        $oneLable = $group->getOneTwoLabel($param['group_id']);
+
+        //获取用户数据
+        $lable = new LabelController();
+        $lable->addLabelOne([$user['openid']],$oneLable['wx_id']);
+    }
+
+    /**
+     * 自动回复消息
+     */
+    public function autoMessage($param)
+    {
+        $auto = new AutoReply();
+        $info = $auto->where('key',$param)->first();
+        return $info['content'];
+    }
 
 }

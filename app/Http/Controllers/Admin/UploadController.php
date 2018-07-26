@@ -34,7 +34,6 @@ class UploadController extends Controller
                     }
 
                 }
-
             }
         }catch (\Exception $e){
             return response()->json(['msg'=>'上传失败','code'=>0,'data'=>'']);

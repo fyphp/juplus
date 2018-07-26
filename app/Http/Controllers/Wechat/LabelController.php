@@ -35,6 +35,15 @@ class LabelController extends Controller
 
         return $result;
     }
+    /**
+     * 为用户添加一级标签
+     */
+    public function addLabelOne($openIds, $tagId)
+    {
+        $app = $this->officialAccount();
+        $result = $app->user_tag->tagUsers($openIds,$tagId);
+        return $result;
+    }
 
     /**
      * 获取微信jssdk

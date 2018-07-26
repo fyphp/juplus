@@ -86,6 +86,16 @@ class Grouping extends Model
     }
 
     /**
+     * 根据二级标签id获取一级标签
+     */
+    public function onOneGetTwo($param)
+    {
+        $tow = $this->find($param['group_id']);
+        $one = $this->find($tow['pata_id']);
+        return $one;
+    }
+
+    /**
      * 根据活动id获取创建的关联表
      */
     public function getActivityLabel($param)
